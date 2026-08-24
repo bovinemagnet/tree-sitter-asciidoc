@@ -33,3 +33,35 @@ https://www.abcdefg.com
     (section_block
       (paragraph
         (line)))))
+
+==================================
+comment does not close its section
+==================================
+
+== A
+
+// c
+
+=== B
+
+text
+
+-----
+
+(document
+  (block_element
+    (section
+      (title1
+        (title_h1_marker)
+        (line))
+      (section_block
+        (line_comment
+          (line_comment_marker)
+          (body)))
+      (section
+        (title2
+          (title_h2_marker)
+          (line))
+        (section_block
+          (paragraph
+            (line)))))))

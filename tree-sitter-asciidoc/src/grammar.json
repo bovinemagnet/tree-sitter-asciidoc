@@ -1842,6 +1842,14 @@
         {
           "type": "SYMBOL",
           "name": "block_macro"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "line_comment"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "block_comment"
         }
       ]
     },
@@ -3256,6 +3264,10 @@
     ],
     [
       "_value_run_eq"
+    ],
+    [
+      "block_element",
+      "_block"
     ]
   ],
   "precedences": [],

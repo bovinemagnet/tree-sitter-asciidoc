@@ -1148,6 +1148,10 @@
           "named": true
         },
         {
+          "type": "block_comment",
+          "named": true
+        },
+        {
           "type": "block_macro",
           "named": true
         },
@@ -1181,6 +1185,10 @@
         },
         {
           "type": "ident_block",
+          "named": true
+        },
+        {
+          "type": "line_comment",
           "named": true
         },
         {

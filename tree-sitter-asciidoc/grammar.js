@@ -13,7 +13,13 @@ module.exports = grammar({
 
   extras: $ => [$._NEWLINE],
 
-  conflicts: $ => [[$._value_run], [$._value_run_eq]],
+  conflicts: $ => [
+    [$._value_run],
+    [$._value_run_eq],
+    // A comment at the document level is reachable both directly and through
+    // `_doc_block`; keeping both keeps top-level comments un-nested.
+    [$.block_element, $._block],
+  ],
 
   rules: {
     document: $ => repeat($.block_element),
@@ -138,6 +144,12 @@ module.exports = grammar({
         $.passthrough_block,
         $.sidebar_block,
         $.block_macro,
+        // Comments are content, not section terminators.  Without these a
+        // comment inside a section body closes the section, and the next
+        // deeper heading (`===` under `==`) has nowhere to attach at the
+        // document level, so the parse errors and swallows the rest of the file.
+        $.line_comment,
+        $.block_comment,
       ),
     // Description (labeled) lists: `term:: definition`.  The marker
     // (`::`/`:::`/`::::`/`;;`, always followed by whitespace or a line
