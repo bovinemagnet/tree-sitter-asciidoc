@@ -65,7 +65,16 @@ exports.rules = {
         seq(
           '|',
           $.table_cell_content,
-          repeat(alias($._cell_block, $.section_block)),
+          // Text may resume after a block: a cell often reads as prose, an
+          // example listing, then more prose.  `table_cell_content` stops at
+          // the next `|`, so a later run cannot reach into the following row
+          // or past the closing fence any more than the first one can.
+          repeat(
+            seq(
+              alias($._cell_block, $.section_block),
+              optional(alias($._cell_text_after, $.table_cell_content)),
+            ),
+          ),
         ),
       ),
     ),
@@ -89,6 +98,11 @@ exports.rules = {
         $.admonition,
       ),
     ),
+  // Text resuming after a block must start on a real character.  Letting it
+  // start on whitespace would wrap the blank line between the block and the
+  // next row in a content node of its own, which the surrounding blank lines
+  // are already handled as.
+  _cell_text_after: $ => seq(/[^|\s]/, repeat(choice(/[^|]/, '\\|'))),
   table_cell_content: $ => repeat1(choice(/[^|]/, '\\|')),
 
   // AsciiDoc promotes a table's first line to a header row when a blank line follows it,

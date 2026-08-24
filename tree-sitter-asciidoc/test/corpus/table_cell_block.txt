@@ -224,3 +224,54 @@ a nested table after a text cell is still a sibling
           (ntable_cell)
           (ntable_block_marker))
         (table_block_marker)))))
+
+================|||
+text resumes after a block in the same cell
+================|||
+
+|===
+|h1 |h2
+
+a|info
+
+[NOTE]
+====
+x
+====
+
+more prose
+
+|y
+|===
+
+-------------------|||
+
+(document
+  (block_element
+    (section_block
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_attr)
+          (table_cell_content)
+          (section_block
+            (element_attr
+              (element_attr_marker)
+              (positional_attr
+                (block_style))
+              (element_attr_marker))
+            (delimited_block
+              (delimited_block_start_marker)
+              (section_block
+                (paragraph
+                  (line)))
+              (delimited_block_end_marker)))
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
