@@ -19,6 +19,13 @@ module.exports = grammar({
     // A comment at the document level is reachable both directly and through
     // `_doc_block`; keeping both keeps top-level comments un-nested.
     [$.block_element, $._block],
+    // After a `| text` cell, an `[...]` line is ambiguous: it either carries
+    // the attributes of a block belonging to that cell (`[NOTE]` before
+    // `====`) or those of a nested table that is a sibling of it (`[cols=...]`
+    // before `!===`).  Nothing before the following marker tells the two
+    // apart, so let the parser hold the cell open and closed at once and let
+    // that marker settle it.
+    [$.table_cell],
   ],
 
   rules: {

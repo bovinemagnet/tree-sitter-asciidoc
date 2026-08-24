@@ -44,21 +44,49 @@ exports.rules = {
         $.table_block_marker,
       ),
     ),
+  // Carries no `prec.right`: that resolved the choice between reducing the cell
+  // and extending it with block content in favour of extending, which put a
+  // following `ntable_block` out of reach.  The `[$.table_cell]` conflict in
+  // `grammar.js` leaves the choice open instead.
   table_cell: $ =>
-    prec.right(
-      seq(
-        optional($.table_cell_attr),
-        choice(
-          seq(
-            '|',
-            token.immediate(/\r?\n/),
-            anySep(
-              alias($._section_block, $.section_block),
-              $.list_continuation,
-            ),
+    seq(
+      optional($.table_cell_attr),
+      choice(
+        seq(
+          '|',
+          token.immediate(/\r?\n/),
+          anySep(
+            alias($._section_block, $.section_block),
+            $.list_continuation,
           ),
-          seq('|', $.table_cell_content),
         ),
+        // A `| text` cell may carry block content after its text, as an
+        // `a`-styled column does: `| text`, a blank line, then `[NOTE]`/`====`.
+        seq(
+          '|',
+          $.table_cell_content,
+          repeat(alias($._cell_block, $.section_block)),
+        ),
+      ),
+    ),
+  // Only blocks that announce themselves with a marker may follow a cell's
+  // text.  A paragraph or a list would equally match the `| ...` line that
+  // starts the next row, so the cell would swallow the rest of the table;
+  // those keep being absorbed into `table_cell_content` as flat text.  Tables
+  // are left out for the same reason -- the closing `|===` would open a nested
+  // table inside the cell rather than close the one the cell belongs to.
+  _cell_block: $ =>
+    seq(
+      repeat($.element_attr),
+      choice(
+        $.delimited_block,
+        $.listing_block,
+        $.literal_block,
+        $.open_block,
+        $.sidebar_block,
+        $.quoted_block,
+        $.passthrough_block,
+        $.admonition,
       ),
     ),
   table_cell_content: $ => repeat1(choice(/[^|]/, '\\|')),
