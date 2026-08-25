@@ -1124,13 +1124,35 @@
                 {
                   "type": "REPEAT",
                   "content": {
-                    "type": "ALIAS",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "_cell_block"
-                    },
-                    "named": true,
-                    "value": "section_block"
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "ALIAS",
+                        "content": {
+                          "type": "SYMBOL",
+                          "name": "_cell_block"
+                        },
+                        "named": true,
+                        "value": "section_block"
+                      },
+                      {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "ALIAS",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_cell_text_after"
+                            },
+                            "named": true,
+                            "value": "table_cell_content"
+                          },
+                          {
+                            "type": "BLANK"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 }
               ]
@@ -1185,6 +1207,31 @@
               "name": "admonition"
             }
           ]
+        }
+      ]
+    },
+    "_cell_text_after": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "PATTERN",
+          "value": "[^|\\s]"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "PATTERN",
+                "value": "[^|]"
+              },
+              {
+                "type": "STRING",
+                "value": "\\|"
+              }
+            ]
+          }
         }
       ]
     },
