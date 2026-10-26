@@ -16,9 +16,6 @@ module.exports = grammar({
   conflicts: $ => [
     [$._value_run],
     [$._value_run_eq],
-    // A comment at the document level is reachable both directly and through
-    // `_doc_block`; keeping both keeps top-level comments un-nested.
-    [$.block_element, $._block],
     // After a `| text` cell, an `[...]` line is ambiguous: it either carries
     // the attributes of a block belonging to that cell (`[NOTE]` before
     // `====`) or those of a nested table that is a sibling of it (`[cols=...]`
@@ -61,6 +58,7 @@ module.exports = grammar({
           $.title1,
           repeat(
             choice(
+              $._section_comment,
               alias($._doc_block, $.section_block),
               alias($._section2, $.section),
               alias($._section3, $.section),
@@ -77,6 +75,7 @@ module.exports = grammar({
           $.title2,
           repeat(
             choice(
+              $._section_comment,
               alias($._doc_block, $.section_block),
               alias($._section3, $.section),
               alias($._section4, $.section),
@@ -92,6 +91,7 @@ module.exports = grammar({
           $.title3,
           repeat(
             choice(
+              $._section_comment,
               alias($._doc_block, $.section_block),
               alias($._section4, $.section),
               alias($._section5, $.section),
@@ -105,7 +105,11 @@ module.exports = grammar({
           repeat(choice($.element_attr, $.block_title)),
           $.title4,
           repeat(
-            choice(alias($._doc_block, $.section_block), alias($._section5, $.section)),
+            choice(
+              $._section_comment,
+              alias($._doc_block, $.section_block),
+              alias($._section5, $.section),
+            ),
           ),
         ),
       ),
@@ -114,9 +118,11 @@ module.exports = grammar({
         seq(
           repeat(choice($.element_attr, $.block_title)),
           $.title5,
-          repeat(alias($._doc_block, $.section_block)),
+          repeat(choice($._section_comment, alias($._doc_block, $.section_block))),
         ),
       ),
+
+    _section_comment: $ => choice($.line_comment, $.block_comment),
 
     // A document-level content block (no section heading).
     _doc_block: $ =>
@@ -124,7 +130,8 @@ module.exports = grammar({
 
     // Container blocks (delimited/open/sidebar/quote/table cells) keep the flat
     // `section_block`, which may still hold a (discrete) heading.
-    section_block: $ => choice($._section_block_para, $._section_block),
+    section_block: $ =>
+      choice($._section_block_para, $._section_block, $._section_comment),
     _section_block_para: $ =>
       seq(repeat(choice($.element_attr, $.block_title)), $.paragraph),
     _section_block: $ =>
@@ -151,12 +158,6 @@ module.exports = grammar({
         $.passthrough_block,
         $.sidebar_block,
         $.block_macro,
-        // Comments are content, not section terminators.  Without these a
-        // comment inside a section body closes the section, and the next
-        // deeper heading (`===` under `==`) has nowhere to attach at the
-        // document level, so the parse errors and swallows the rest of the file.
-        $.line_comment,
-        $.block_comment,
       ),
     // Description (labeled) lists: `term:: definition`.  The marker
     // (`::`/`:::`/`::::`/`;;`, always followed by whitespace or a line

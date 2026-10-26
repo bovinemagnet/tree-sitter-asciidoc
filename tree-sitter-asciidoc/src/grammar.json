@@ -1479,6 +1479,10 @@
               "type": "CHOICE",
               "members": [
                 {
+                  "type": "SYMBOL",
+                  "name": "_section_comment"
+                },
+                {
                   "type": "ALIAS",
                   "content": {
                     "type": "SYMBOL",
@@ -1561,6 +1565,10 @@
               "type": "CHOICE",
               "members": [
                 {
+                  "type": "SYMBOL",
+                  "name": "_section_comment"
+                },
+                {
                   "type": "ALIAS",
                   "content": {
                     "type": "SYMBOL",
@@ -1634,6 +1642,10 @@
               "type": "CHOICE",
               "members": [
                 {
+                  "type": "SYMBOL",
+                  "name": "_section_comment"
+                },
+                {
                   "type": "ALIAS",
                   "content": {
                     "type": "SYMBOL",
@@ -1698,6 +1710,10 @@
               "type": "CHOICE",
               "members": [
                 {
+                  "type": "SYMBOL",
+                  "name": "_section_comment"
+                },
+                {
                   "type": "ALIAS",
                   "content": {
                     "type": "SYMBOL",
@@ -1750,17 +1766,39 @@
           {
             "type": "REPEAT",
             "content": {
-              "type": "ALIAS",
-              "content": {
-                "type": "SYMBOL",
-                "name": "_doc_block"
-              },
-              "named": true,
-              "value": "section_block"
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_section_comment"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_doc_block"
+                  },
+                  "named": true,
+                  "value": "section_block"
+                }
+              ]
             }
           }
         ]
       }
+    },
+    "_section_comment": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "line_comment"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "block_comment"
+        }
+      ]
     },
     "_doc_block": {
       "type": "SEQ",
@@ -1806,6 +1844,10 @@
         {
           "type": "SYMBOL",
           "name": "_section_block"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_section_comment"
         }
       ]
     },
@@ -1954,14 +1996,6 @@
         {
           "type": "SYMBOL",
           "name": "block_macro"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "line_comment"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "block_comment"
         }
       ]
     },
@@ -3376,10 +3410,6 @@
     ],
     [
       "_value_run_eq"
-    ],
-    [
-      "block_element",
-      "_block"
     ],
     [
       "table_cell"
