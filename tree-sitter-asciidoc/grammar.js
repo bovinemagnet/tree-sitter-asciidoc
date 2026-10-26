@@ -54,7 +54,7 @@ module.exports = grammar({
     _section1: $ =>
       prec.right(
         seq(
-          repeat(choice($.element_attr, $.block_title)),
+          optional($._block_attrs),
           $.title1,
           repeat(
             choice(
@@ -71,7 +71,7 @@ module.exports = grammar({
     _section2: $ =>
       prec.right(
         seq(
-          repeat(choice($.element_attr, $.block_title)),
+          optional($._block_attrs),
           $.title2,
           repeat(
             choice(
@@ -87,7 +87,7 @@ module.exports = grammar({
     _section3: $ =>
       prec.right(
         seq(
-          repeat(choice($.element_attr, $.block_title)),
+          optional($._block_attrs),
           $.title3,
           repeat(
             choice(
@@ -102,7 +102,7 @@ module.exports = grammar({
     _section4: $ =>
       prec.right(
         seq(
-          repeat(choice($.element_attr, $.block_title)),
+          optional($._block_attrs),
           $.title4,
           repeat(
             choice(
@@ -116,7 +116,7 @@ module.exports = grammar({
     _section5: $ =>
       prec.right(
         seq(
-          repeat(choice($.element_attr, $.block_title)),
+          optional($._block_attrs),
           $.title5,
           repeat(choice($._section_comment, alias($._doc_block, $.section_block))),
         ),
@@ -124,19 +124,29 @@ module.exports = grammar({
 
     _section_comment: $ => choice($.line_comment, $.block_comment),
 
+    // Block attributes and a block title belong to the block (or heading) that
+    // follows them, and Asciidoctor carries them across any comments in between.
+    // A comment joins the run only once it has started, so a leading comment
+    // stays a standalone `_section_comment`.
+    _block_attrs: $ =>
+      seq(
+        choice($.element_attr, $.block_title),
+        repeat(choice($.element_attr, $.block_title, $._section_comment)),
+      ),
+
     // A document-level content block (no section heading).
     _doc_block: $ =>
-      seq(repeat(choice($.element_attr, $.block_title)), choice($.paragraph, $._block)),
+      seq(optional($._block_attrs), choice($.paragraph, $._block)),
 
     // Container blocks (delimited/open/sidebar/quote/table cells) keep the flat
     // `section_block`, which may still hold a (discrete) heading.
     section_block: $ =>
       choice($._section_block_para, $._section_block, $._section_comment),
     _section_block_para: $ =>
-      seq(repeat(choice($.element_attr, $.block_title)), $.paragraph),
+      seq(optional($._block_attrs), $.paragraph),
     _section_block: $ =>
       seq(
-        repeat(choice($.element_attr, $.block_title)),
+        optional($._block_attrs),
         choice($.title1, $.title2, $.title3, $.title4, $.title5, $._block),
       ),
     _block: $ =>
