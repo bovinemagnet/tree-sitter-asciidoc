@@ -36,11 +36,14 @@ unsigned tree_sitter_asciidoc_external_scanner_serialize(void *payload, char *bu
 }
 
 void tree_sitter_asciidoc_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
-    if(!buffer) {
+    Scanner *s = (Scanner *)payload;
+    s->len = 0;
+    s->header_pending = false;
+
+    if(!buffer || length == 0) {
         return;
     }
 
-    Scanner *s = (Scanner *)payload;
     QuickBuffer qb = quick_buffer_new((void *)buffer, length);
     scanner_deserialize(s, &qb);
 }
