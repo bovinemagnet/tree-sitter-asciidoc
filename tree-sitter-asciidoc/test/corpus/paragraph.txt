@@ -335,3 +335,93 @@ Mr. Smith
     (section_block
       (paragraph
         (line)))))
+
+====================|||
+paragraph: a line over 512 characters ends the paragraph
+====================|||
+
+Some prose
+word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word end
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (paragraph
+        (line)))))
+
+====================|||
+paragraph: a line containing a double colon ends the paragraph
+====================|||
+
+Some prose
+use std::vector here
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (paragraph
+        (line)))))
+
+====================|||
+paragraph: ends before a semicolon description list term
+====================|||
+
+Some prose
+term;; a definition
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (description_list
+        (description_list_item
+          (term)
+          (description_marker)
+          (line))))))
+
+====================|||
+paragraph: ends before a preprocessor directive
+====================|||
+
+Some prose
+ifdef::x[]
+conditional prose
+endif::[]
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (block_macro
+        (block_macro_name)
+        (target))))
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (block_macro
+        (block_macro_name)))))
