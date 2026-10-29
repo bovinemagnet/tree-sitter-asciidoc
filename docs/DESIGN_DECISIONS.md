@@ -20,8 +20,8 @@ AsciiDoc has too much context sensitivity for a pure LR grammar: a delimiter
 line can open or close a block depending on what is already open, `*` is a
 bullet at the start of a line and emphasis mid-line, and constrained formatting
 depends on word boundaries and on a matching delimiter existing later in the
-line. These decisions are made in C in `src/scanner.c` and surfaced as external
-tokens. The grammar rules then stay declarative.
+paragraph. These decisions are made in C in `src/scanner.c` and surfaced as
+external tokens. The grammar rules then stay declarative.
 
 Consequence: the scanner carries serialized state (the open-block stack), so it
 behaves correctly under incremental re-parsing.
@@ -29,11 +29,20 @@ behaves correctly under incremental re-parsing.
 ## Constrained formatting via lookahead-gated openers
 
 The inline scanner emits an opening delimiter (for example `_emphasis_begin`)
-only when a valid matching close exists later on the same line. This is the
-mechanism that keeps a lone `*`, the `#` in "issue #2", or the `_` in
-`do_something_useful` as plain punctuation rather than error-recovering into an
-unterminated formatting node. Typographic-quote openers and the hard line break
-use the same gate.
+only when a valid matching close exists later in the injected text, which is the
+whole paragraph: the look-ahead runs over line endings but not past a blank
+line. This is the mechanism that keeps a lone `*` or the `#` in "issue #2" as
+plain punctuation rather than error-recovering into an unterminated formatting
+node. Typographic-quote openers and the hard line break use the same gate, but
+look only at the rest of the line.
+
+A delimiter between two word characters, such as each `_` in
+`do_something_useful`, never reaches the scanner. AsciiDoc does not open or
+close a constrained span inside a word, and the scanner cannot look back to see
+the letter before a delimiter, so with a paragraph-wide look-ahead such a `_`
+would pair with any later close. The inline grammar instead lexes the whole run
+(`do_something_useful`, `a*b`) as one `word`. A doubled delimiter is not part of
+that run, so the unconstrained `__x__` and `**x**` still work inside a word.
 
 ## Sections wrap content but keep `title1`..`title5`
 

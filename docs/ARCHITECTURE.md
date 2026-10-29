@@ -79,9 +79,15 @@ It also emits, at the start of a line:
 
 - section title markers (`title_h0_marker`..`title_h5_marker`), where the level
   is the run length of `=` (or `#` for Markdown ATX headings)
-- list markers (`*`, `-`, `.`, ordered digit/alpha/roman, callouts)
+- list markers (`*`, `-`, `.`, ordered digit/alpha/Greek, callouts)
 - the indented-literal marker, document-attribute markers, table markers,
   description-list terms, and comment markers
+
+and, at the end of a line inside a paragraph:
+
+- `_paragraph_soft_break`, which joins the next line to the paragraph only when
+  that line is prose (`is_prose_line`); otherwise `_block_end` ends the
+  paragraph
 
 `scanner_is_matching_raw_block()` reports whether we are inside a raw block
 (listing/literal/fenced), where most markup is suppressed.
@@ -91,11 +97,14 @@ It also emits, at the start of a line:
 The inline scanner's main job is **constrained formatting**. AsciiDoc
 distinguishes `*bold*` (constrained: needs word boundaries) from `**bold**`
 (unconstrained). The scanner emits an opening delimiter token (for example
-`_emphasis_begin`) only when a valid matching close exists later on the line, so
-a stray `*` or the `#` in "issue #2" stays punctuation instead of starting a
-formatting node that never closes. The same approach drives the two-character
-openers for typographic quotes (`"` + `` ` `` and `'` + `` ` ``) and the hard
-line break.
+`_emphasis_begin`) only when a valid matching close exists later in the injected
+text (the paragraph), looking over line endings but not past a blank line, so a
+stray `*` or the `#` in "issue #2" stays punctuation instead of starting a
+formatting node that never closes. A delimiter between two word characters, as
+in `max_connections`, is lexed as part of the `word` and never reaches the
+scanner. The same approach drives the two-character openers for typographic
+quotes (`"` + `` ` `` and `'` + `` ` ``) and the hard line break, which still
+look only at the rest of the line.
 
 ## Grammar structure highlights
 
