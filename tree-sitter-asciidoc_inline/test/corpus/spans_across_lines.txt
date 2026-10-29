@@ -1,0 +1,59 @@
+====================
+emphasis across a line break
+====================
+
+a *bold over
+two lines* b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element
+    (emphasis))
+  (inline_element
+    (word)))
+
+====================
+italic across a line break
+====================
+
+a _italic over
+two lines_ b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element
+    (italic))
+  (inline_element
+    (word)))
+
+====================
+emphasis does not cross a blank line
+====================
+
+a *bold over
+
+two lines* b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word)))
