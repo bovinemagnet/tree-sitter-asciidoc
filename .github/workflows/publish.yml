@@ -1,9 +1,9 @@
 name: Publish packages
 
+# Manual only: the crate names on crates.io belong to the archived upstream,
+# so a release tag must not try to publish.
 on:
   workflow_dispatch:
-  push:
-    tags: ['*']
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
