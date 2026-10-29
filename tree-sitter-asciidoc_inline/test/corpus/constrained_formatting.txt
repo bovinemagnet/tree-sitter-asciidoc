@@ -26,16 +26,6 @@ do_something_useful x
 (inline
   (inline_element
     (word))
-  (inline_element)
-  (inline_element
-    (word))
-  (inline_element)
-  (inline_element
-    (word))
-  (inline_element
-    (word))
-  (inline_element
-    (word))
   (inline_element
     (word)))
 
@@ -71,3 +61,36 @@ _"COMP1010_TUT01_2025_S1"_ and *a_b_c*
     (word))
   (inline_element
     (emphasis)))
+
+==================================================
+an intraword underscore does not pair with a later span
+==================================================
+
+Set max_connections and _default_ here.
+
+--------------------------------------------------
+
+(inline
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (italic))
+  (inline_element
+    (word))
+  (inline_element))
+
+==================================================
+a snake_case identifier is one word
+==================================================
+
+snake_case_name
+
+--------------------------------------------------
+
+(inline
+  (inline_element
+    (word)))

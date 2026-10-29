@@ -57,3 +57,46 @@ two lines* b
   (inline_element)
   (inline_element
     (word)))
+
+====================
+an intraword underscore does not pair over a line break
+====================
+
+Set the max_connections option in the
+config file. The _default_ is 100.
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word))
+  (inline_element
+    (italic))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element))

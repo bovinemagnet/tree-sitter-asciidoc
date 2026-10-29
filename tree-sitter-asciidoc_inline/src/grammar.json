@@ -1439,6 +1439,10 @@
         {
           "type": "STRING",
           "value": "f"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_delimited_word"
         }
       ]
     },
@@ -1472,6 +1476,13 @@
           "type": "PATTERN",
           "value": "[^f\\s!\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~]+"
         }
+      }
+    },
+    "_delimited_word": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[^\\s!\"#$%&'()*+,\\-./:;<=>?@\\[\\\\\\]\\^_`{|}~]+([_*#`][^\\s!\"#$%&'()*+,\\-./:;<=>?@\\[\\\\\\]\\^_`{|}~]+)+"
       }
     },
     "escaped_sequence": {
