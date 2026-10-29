@@ -44,9 +44,9 @@ scanner joins a line to the paragraph above it only when it is sure the line is
 prose, so a paragraph also ends before a line that starts with anything but a
 letter or digit, a line that starts like an ordered list item (`a.`, `1.`, and
 prose such as `Mr. Smith`), a line that starts with an admonition label
-(`NOTE:`), and a line that contains `::` or `;;`. Asciidoctor would keep some of
-those lines in the paragraph; here they start a paragraph of their own, as every
-line did before. A line that is not prose but still parses as paragraph text,
+(`NOTE:`), a line that contains `::` or `;;`, and a line longer than 512
+characters. Asciidoctor would keep some of those lines in the paragraph; here
+they start a paragraph of their own, as every line did before. A line that is not prose but still parses as paragraph text,
 such as a lone `+` or a `[[anchor]]` on its own line, starts a paragraph that
 takes in the prose below it.
 
