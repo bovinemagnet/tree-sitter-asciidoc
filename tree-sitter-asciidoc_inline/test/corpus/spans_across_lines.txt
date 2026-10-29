@@ -1,0 +1,145 @@
+====================
+emphasis across a line break
+====================
+
+a *bold over
+two lines* b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element
+    (emphasis))
+  (inline_element
+    (word)))
+
+====================
+italic across a line break
+====================
+
+a _italic over
+two lines_ b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element
+    (italic))
+  (inline_element
+    (word)))
+
+====================
+emphasis does not cross a blank line
+====================
+
+a *bold over
+
+two lines* b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word)))
+
+====================
+an intraword underscore does not pair over a line break
+====================
+
+Set the max_connections option in the
+config file. The _default_ is 100.
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word))
+  (inline_element
+    (italic))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element))
+
+====================
+a whitespace-only line stops a span
+====================
+
+a *bold over
+   
+two lines* b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word)))
+
+====================
+a delimiter at the start of the next line does not close
+====================
+
+*a
+*b
+
+-----
+
+(inline
+  (inline_element)
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word)))

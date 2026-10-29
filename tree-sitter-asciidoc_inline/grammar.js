@@ -44,9 +44,11 @@ module.exports = grammar({
     $._hard_wrap_plus,
     // Opening delimiters for constrained formatting.  The external
     // scanner emits one of these only when a valid matching close exists
-    // on the line, so an unpaired delimiter (e.g. the `#' in "issue #2",
-    // a lone `*', or the `_' in "do_something_useful") stays punctuation
-    // instead of error-recovering into a formatting node.
+    // later in the paragraph, so an unpaired delimiter (e.g. the `#' in
+    // "issue #2", or a lone `*') stays punctuation instead of
+    // error-recovering into a formatting node.  A delimiter between two
+    // word characters, as in "do_something_useful", never reaches the
+    // scanner: it is part of the word (see `_delimited_word').
     $._emphasis_begin,
     $._italic_begin,
     $._monospace_begin,
@@ -338,6 +340,7 @@ module.exports = grammar({
         $._fallback_token,
         $.escaped_sequence,
         'f',
+        $._delimited_word,
       ),
     _fallback_token: $ => choice($.macro_name, $._stem_name, $._footnotename),
     super_escape: $ => '\\\\',
@@ -355,6 +358,23 @@ module.exports = grammar({
           ),
         ),
       ),
+    // A word with constrained delimiters inside it, e.g. `max_connections`
+    // or `a*b`.  AsciiDoc never opens or closes a constrained span between
+    // two word characters, so such a delimiter belongs to the word.  Lexing
+    // the run as one token keeps the external scanner from being asked at
+    // the inner delimiter: it cannot look back to see the letter before it,
+    // so it would pair that delimiter with any valid close later in the
+    // paragraph.  A doubled delimiter does not match, so the unconstrained
+    // `__x__` and `**x**` still work inside a word.
+    _delimited_word: _ => {
+      // Escape the characters that are special inside a class, so that `[`,
+      // `]`, `\\`, `^` and `-` are excluded literally.
+      const punctuation = PUNCTUATION_CHARACTERS_ARRAY.map(item =>
+        '[]\\^-'.includes(item) ? `\\${item}` : item,
+      ).join('');
+      const ch = `[^\\s${punctuation}]`;
+      return token(new RegExp(`${ch}+([_*#\`]${ch}+)+`));
+    },
     escaped_sequence: $ => {
       const args = [
         '+++',

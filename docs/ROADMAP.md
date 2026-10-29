@@ -17,6 +17,10 @@ next line begins a new block) would give a dependable `at_block_start` signal.
 It is an invasive change to a core mechanism, so it deserves its own focused
 pass with heavy corpus testing.
 
+The line ending inside a paragraph already goes through the scanner (the
+`_paragraph_soft_break` token), which is how paragraphs span lines. Every other
+line ending still does not.
+
 ## List nesting
 
 Addresses [flat lists](LIMITATIONS.md#lists-do-not-nest). The plan is the

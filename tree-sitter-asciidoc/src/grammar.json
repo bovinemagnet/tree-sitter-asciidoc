@@ -3198,11 +3198,38 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "REPEAT1",
+              "type": "ALIAS",
               "content": {
-                "type": "SYMBOL",
-                "name": "line"
+                "type": "PATTERN",
+                "value": "[^\\r\\n]+"
+              },
+              "named": true,
+              "value": "line"
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "_paragraph_soft_break"
+                  },
+                  {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "PATTERN",
+                      "value": "[^\\r\\n]+"
+                    },
+                    "named": true,
+                    "value": "line"
+                  }
+                ]
               }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_block_end"
             },
             {
               "type": "CHOICE",
@@ -3626,6 +3653,10 @@
     {
       "type": "SYMBOL",
       "name": "_table_header_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_paragraph_soft_break"
     }
   ],
   "inline": [],

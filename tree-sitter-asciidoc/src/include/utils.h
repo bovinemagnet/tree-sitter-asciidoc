@@ -55,7 +55,8 @@ typedef enum TokenType {
     TOKEN_DSV_TABLE_BLOCK_MARKER,
     TOKEN_TERM,
     TOKEN_DESCRIPTION_MARKER,
-    TOKEN_TABLE_HEADER_START
+    TOKEN_TABLE_HEADER_START,
+    TOKEN_PARAGRAPH_SOFT_BREAK
 } TokenType;
 
 static inline bool parse_table_attr(TSLexer *lexer);
@@ -67,6 +68,9 @@ static inline bool parse_breaks(char start, TSLexer *lexer);
 static inline bool consume(i32 ch, TSLexer *lexer, bool skip_space, usize *counter, usize max);
 static inline bool skip_white_space(TSLexer *lexer);
 static inline bool is_white_space(i32 ch);
+static inline bool continues_paragraph(TSLexer *lexer);
+static inline bool is_prose_line(i32 const *line, usize len);
+static inline bool is_word_start(i32 ch);
 static inline bool is_new_line(i32 ch);
 static inline bool is_ascii_digit(i32 ch);
 static inline bool is_ascii_alpha_lower(i32 ch);

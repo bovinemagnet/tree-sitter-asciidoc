@@ -21,12 +21,29 @@ static bool is_word_char(int32_t c) {
            (c >= '0' && c <= '9');
 }
 
+// Step over a line ending inside a span. A span may run over the lines of one
+// paragraph but not past a blank line, so return false at a blank line or the
+// end of input, where no close can follow.
+static bool cross_line_ending(TSLexer *lexer) {
+    if (lexer->lookahead == '\r') {
+        lexer->advance(lexer, false);
+    }
+    if (lexer->lookahead == '\n') {
+        lexer->advance(lexer, false);
+    }
+    while (is_space(lexer->lookahead)) {
+        lexer->advance(lexer, false);
+    }
+    return !lexer->eof(lexer) && lexer->lookahead != '\n' &&
+           lexer->lookahead != '\r';
+}
+
 // Scan a constrained opening delimiter `d` (the lexer is positioned at it).
 //
 // AsciiDoc constrained formatting only applies when the span is balanced.
 // Emit the opening delimiter token only when:
 //   - the opener is immediately followed by a non-space, non-delimiter char,
-//   - and a valid closing `d` exists later on the same line: not escaped,
+//   - and a valid closing `d` exists later in the paragraph: not escaped,
 //     preceded by a non-space, and followed by a word boundary.
 // Otherwise return false so the delimiter falls back to plain punctuation
 // instead of error-recovering into a formatting node with a missing close.
@@ -41,12 +58,19 @@ static bool scan_constrained_begin(TSLexer *lexer, int32_t d,
     // The emitted token is exactly the opening delimiter.
     lexer->mark_end(lexer);
 
-    // Look ahead for a valid close on the same line.
+    // Look ahead for a valid close, over line endings but not past a blank line.
     int32_t prev = after;
     lexer->advance(lexer, false);
-    while (!lexer->eof(lexer) && lexer->lookahead != '\n' &&
-           lexer->lookahead != '\r') {
+    while (!lexer->eof(lexer)) {
         int32_t c = lexer->lookahead;
+        if (c == '\n' || c == '\r') {
+            if (!cross_line_ending(lexer)) {
+                return false;
+            }
+            // A close needs a non-space before it; a line start has none.
+            prev = ' ';
+            continue;
+        }
         if (c == d && prev != '\\' && !is_space(prev)) {
             lexer->advance(lexer, false);
             int32_t next = lexer->lookahead;
