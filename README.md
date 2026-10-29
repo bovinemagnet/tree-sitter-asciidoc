@@ -9,7 +9,7 @@
 
 This is a fork of [cathaysia/tree-sitter-asciidoc](https://github.com/cathaysia/tree-sitter-asciidoc). Upstream was archived and made read-only in October 2026, so this fork is now maintained independently, on its `master` branch, for two projects that depend on it:
 
-- [zed-asciidoc](https://github.com/bovinemagnet/zed-asciidoc), the AsciiDoc and Antora extension for the Zed editor
+- [zed-asciidoc-antora](https://github.com/bovinemagnet/zed-asciidoc-antora), the AsciiDoc and Antora extension for the Zed editor
 - [AdocFoundry](https://github.com/bovinemagnet/AdocFoundry), a desktop editor for AsciiDoc and Antora documentation
 
 Both pin the grammars to a commit on `master`. As well as everything upstream released, `master` carries changes upstream never took:
