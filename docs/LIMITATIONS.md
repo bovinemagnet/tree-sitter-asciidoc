@@ -36,12 +36,21 @@ that line starts a new block or continues the previous one, and blank lines (the
 real block separator) are invisible to the grammar. A clean fix needs reliable
 blank-line / line-ending tokenization; see [ROADMAP.md](ROADMAP.md).
 
-## Plain paragraphs are line-by-line
+## Paragraphs end at any line that might open a block
 
-Consecutive non-blank lines at the document level are parsed as separate
-single-line paragraphs rather than one multi-line paragraph. This rarely matters
-for highlighting, but consumers should not assume a paragraph node spans every
-line of a visual paragraph.
+Consecutive lines of prose form one `paragraph`, and constrained formatting
+(`*bold*`, `_italic_`, `` `mono` ``, `#highlight#`) may run over its lines. The
+scanner joins a line to the paragraph above it only when it is sure the line is
+prose, so a paragraph also ends before a line that starts with anything but a
+letter or digit, a line that starts like an ordered list item (`a.`, `1.`, and
+prose such as `Mr. Smith`), a line that starts with an admonition label
+(`NOTE:`), and a line that contains `::` or `;;`. Asciidoctor would keep some of
+those lines in the paragraph; here they start a paragraph of their own, as every
+line did before. A line that is not prose but still parses as paragraph text,
+such as a lone `+` or a `[[anchor]]` on its own line, starts a paragraph that
+takes in the prose below it.
+
+Typographic quotes ("`…`" and '`…`') still have to close on the line they open.
 
 ## Sections nest only at the document level
 
