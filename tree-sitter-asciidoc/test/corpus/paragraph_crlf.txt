@@ -1,0 +1,15 @@
+====================
+paragraph: CRLF lines form one paragraph
+====================
+
+First line of prose
+second line of prose
+
+-----
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line)
+        (line)))))

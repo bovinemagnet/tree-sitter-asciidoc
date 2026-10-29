@@ -1,0 +1,337 @@
+====================|||
+paragraph: a blank line separates paragraphs
+====================|||
+
+One paragraph
+
+Another paragraph
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (paragraph
+        (line)))))
+
+====================|||
+paragraph: ends before an unordered list
+====================|||
+
+Some prose
+* a list item
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (list
+        (unordered_list
+          (unordered_list_item
+            (unordered_list_marker
+              (list_marker_star))
+            (line)))))))
+
+====================|||
+paragraph: ends before an ordered list
+====================|||
+
+Some prose
+. an ordered item
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (list
+        (ordered_list
+          (ordered_list_item
+            (ordered_list_marker
+              (list_marker_dot))
+            (line)))))))
+
+====================|||
+paragraph: ends before a block attribute line
+====================|||
+
+Some prose
+[source,rust]
+----
+fn main() {}
+----
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (block_style))
+        (positional_attr)
+        (element_attr_marker))
+      (listing_block
+        (listing_block_start_marker)
+        (listing_block_body)
+        (listing_block_end_marker)))))
+
+====================|||
+paragraph: ends before a block title
+====================|||
+
+Some prose
+.A block title
+----
+code
+----
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (block_title
+        (block_title_marker)
+        (line))
+      (listing_block
+        (listing_block_start_marker)
+        (listing_block_body)
+        (listing_block_end_marker)))))
+
+====================|||
+paragraph: ends before an admonition
+====================|||
+
+Some prose
+NOTE: an admonition
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (admonition
+        (admonition_note)
+        (line)))))
+
+====================|||
+paragraph: ends before a description list
+====================|||
+
+Some prose
+term:: definition
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (description_list
+        (description_list_item
+          (term)
+          (description_marker)
+          (line))))))
+
+====================|||
+paragraph: ends before a line comment
+====================|||
+
+Some prose
+// a comment
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (line_comment
+      (line_comment_marker)
+      (body))))
+
+====================|||
+paragraph: ends before an indented literal
+====================|||
+
+Some prose
+  indented literal
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (ident_block
+        (ident_block_line
+          (ident_marker))))))
+
+====================|||
+paragraph: ends before a block macro
+====================|||
+
+Some prose
+image::pic.png[]
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (block_macro
+        (block_macro_name)
+        (target)))))
+
+====================|||
+paragraph: ends before a section heading
+====================|||
+
+Some prose
+== A section
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section
+      (title1
+        (title_h1_marker)
+        (line)))))
+
+====================|||
+paragraph: consecutive prose lines form one paragraph
+====================|||
+
+First line of prose
+second line of prose
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line)
+        (line)))))
+
+====================|||
+paragraph: the last line may end at the end of input
+====================|||
+
+First line of prose
+second line of prose
+third line of prose
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line)
+        (line)
+        (line)))))
+
+====================|||
+paragraph: lines inside a delimited block join
+====================|||
+
+====
+Inside an example
+block of prose
+====
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (delimited_block
+        (delimited_block_start_marker)
+        (section_block
+          (paragraph
+            (line)
+            (line)))
+        (delimited_block_end_marker)))))
+
+====================|||
+paragraph: a quoted paragraph keeps its attribution
+====================|||
+
+"Quoted words
+over two lines"
+-- Someone, Somewhere
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line)
+        (line)
+        (quoted_line
+          (quoted_paragraph_marker)
+          (line))))))
+
+====================|||
+paragraph: a list-marker-like word ends the paragraph
+====================|||
+
+Some prose by
+Mr. Smith
+
+-----|||
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (paragraph
+        (line)))))

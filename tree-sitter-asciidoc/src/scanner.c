@@ -84,6 +84,21 @@ bool tree_sitter_asciidoc_external_scanner_scan(void *payload, TSLexer *lexer, c
         return false;
     }
 
+    // The line ending inside a paragraph joins the next line to it only when that
+    // line is prose. A blank line, the end of input or a line that could open a
+    // block is left to `_block_end`, which ends the paragraph. In error recovery
+    // every symbol is valid, and the block-comment check above has already
+    // returned, so this never runs then.
+    if(valid_symbols[TOKEN_PARAGRAPH_SOFT_BREAK] && is_newline(lexer->lookahead)) {
+        skip_line_ending(lexer);
+        lexer->mark_end(lexer);
+        if(continues_paragraph(lexer)) {
+            lexer->result_symbol = TOKEN_PARAGRAPH_SOFT_BREAK;
+            return true;
+        }
+        return false;
+    }
+
     if(start_pos == 0) {
         if(valid_symbols[TOKEN_ADMONITION_NOTE]) {
             do {
@@ -1062,4 +1077,73 @@ static inline Node *scanner_top(Scanner const *self) {
     }
 
     return &(self->buffer[self->len - 1]);
+}
+
+// The longest line `continues_paragraph` reads. A longer line is not judged and so
+// ends the paragraph, as every line did before paragraphs spanned lines.
+#define PARAGRAPH_PEEK 512
+
+/// Whether `ch` can begin a word: an ASCII letter or digit, or any non-ASCII
+/// character, which covers letters in other scripts.
+static inline bool is_word_start(i32 ch) {
+    return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || is_ascii_digit(ch) ||
+           ch > 0x7f;
+}
+
+/// Reads the line the lexer is on, which the caller has already marked as lookahead,
+/// and says whether it is prose that continues a paragraph.
+static inline bool continues_paragraph(TSLexer *lexer) {
+    i32 line[PARAGRAPH_PEEK];
+    usize len = 0;
+    while(!lexer->eof(lexer) && !is_newline(lexer->lookahead)) {
+        if(len == PARAGRAPH_PEEK) {
+            return false;
+        }
+        line[len++] = lexer->lookahead;
+        lexer->advance(lexer, false);
+    }
+    return is_prose_line(line, len);
+}
+
+/// Conservative: a line is prose only when nothing about it could open a block.
+static inline bool is_prose_line(i32 const *line, usize len) {
+    // Blank, indented, or opening with a marker character (`*`, `.`, `[`, `=`, `|`, …).
+    if(len == 0 || !is_word_start(line[0])) {
+        return false;
+    }
+
+    // An ordered list marker (`1.`, `a.`, `α.`) followed by white space. This also
+    // stops at prose such as `Mr. Smith`, which then starts a paragraph of its own.
+    usize word = 0;
+    while(word < len && is_word_start(line[word])) {
+        word++;
+    }
+    if(word < len && line[word] == '.' && (word + 1 == len || is_white_space(line[word + 1]))) {
+        return false;
+    }
+
+    // An admonition label: `NOTE:` and the like.
+    static char const *const labels[] = {"NOTE", "TIP", "IMPORTANT", "CAUTION", "WARNING"};
+    for(usize l = 0; l < sizeof(labels) / sizeof(labels[0]); l++) {
+        usize n = strlen(labels[l]);
+        if(len > n && line[n] == ':') {
+            usize i = 0;
+            while(i < n && line[i] == (i32)labels[l][i]) {
+                i++;
+            }
+            if(i == n) {
+                return false;
+            }
+        }
+    }
+
+    // Description list terms (`term::`, `term;;`), block macros (`image::`) and
+    // preprocessor directives (`ifdef::`) all carry a doubled `:` or `;`.
+    for(usize i = 1; i < len; i++) {
+        if((line[i] == ':' && line[i - 1] == ':') || (line[i] == ';' && line[i - 1] == ';')) {
+            return false;
+        }
+    }
+
+    return true;
 }

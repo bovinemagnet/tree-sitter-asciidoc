@@ -83,10 +83,7 @@ and as necessary in the political world as storms in the physical."
   (block_element
     (section_block
       (paragraph
-        (line))))
-  (block_element
-    (section_block
-      (paragraph
+        (line)
         (line)
         (quoted_line
           (quoted_paragraph_marker)

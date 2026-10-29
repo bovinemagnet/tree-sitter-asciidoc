@@ -352,8 +352,23 @@ module.exports = grammar({
       ),
 
     line: $ => seq(/[^\r\n]+/, $._block_end),
+    // A paragraph runs over consecutive lines of prose.  The line ending
+    // between two of its lines is `_paragraph_soft_break`, which the scanner
+    // supplies only when the next line is plain prose; a blank line, the end
+    // of input or a line that could open a block is left to `_block_end`,
+    // which ends the paragraph.
     paragraph: $ =>
-      prec.left(prec(-1, seq(repeat1($.line), optional($.quoted_line)))),
+      prec.left(
+        prec(
+          -1,
+          seq(
+            alias(/[^\r\n]+/, $.line),
+            repeat(seq($._paragraph_soft_break, alias(/[^\r\n]+/, $.line))),
+            $._block_end,
+            optional($.quoted_line),
+          ),
+        ),
+      ),
     quoted_line: $ =>
       seq($.quoted_paragraph_marker, token.immediate(' '), $.line),
 
@@ -445,5 +460,6 @@ module.exports = grammar({
     $.term,
     $.description_marker,
     $._table_header_start,
+    $._paragraph_soft_break,
   ],
 });

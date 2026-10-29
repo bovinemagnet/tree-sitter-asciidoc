@@ -167,10 +167,7 @@ print("one")
   (block_element
     (section_block
       (paragraph
-        (line))))
-  (block_element
-    (section_block
-      (paragraph
+        (line)
         (line))))
   (block_element
     (section_block
