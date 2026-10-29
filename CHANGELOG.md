@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.11.0](https://github.com/bovinemagnet/tree-sitter-asciidoc/compare/v0.10.0...v0.11.0) (2026-10-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **block:** multi-line paragraphs and spans across lines ([#13](https://github.com/bovinemagnet/tree-sitter-asciidoc/issues/13))
+
+### Features
+
+* **block:** multi-line paragraphs and spans across lines ([#13](https://github.com/bovinemagnet/tree-sitter-asciidoc/issues/13)) ([eb121d5](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/eb121d5d6c9a2705e307a7900cb1a0c873d06530))
+
 ## [0.10.0](https://github.com/bovinemagnet/tree-sitter-asciidoc/compare/v0.9.0...v0.10.0) (2026-10-29)
 
 
