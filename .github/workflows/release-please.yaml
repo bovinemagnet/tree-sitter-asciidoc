@@ -15,6 +15,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v5
+        id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
+
+      # tree-sitter generate writes the version from tree-sitter.json into
+      # parser.c, so the release PR's version bump must carry regenerated
+      # parsers, or CI's regenerate check fails once it merges.
+      - uses: actions/checkout@v7
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        with:
+          ref: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+      - uses: pnpm/action-setup@v6
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        with:
+          run_install: true
+      - name: regenerate parsers
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        run: |
+          pnpm generate
+          if ! git diff --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -am 'chore: regenerate the parsers for the release'
+            git push
+          fi
