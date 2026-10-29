@@ -1,4 +1,6 @@
 * text eol=lf
+# Kept byte for byte so the Windows line endings under test survive.
+test/corpus/*_crlf.txt -text
 
 src/*.json linguist-generated
 src/parser.c linguist-generated

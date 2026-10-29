@@ -1,0 +1,16 @@
+====================
+emphasis across a CRLF line break
+====================
+
+a *bold over
+two lines* b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element
+    (emphasis))
+  (inline_element
+    (word)))

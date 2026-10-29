@@ -100,3 +100,46 @@ config file. The _default_ is 100.
   (inline_element
     (word))
   (inline_element))
+
+====================
+a whitespace-only line stops a span
+====================
+
+a *bold over
+   
+two lines* b
+
+-----
+
+(inline
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word)))
+
+====================
+a delimiter at the start of the next line does not close
+====================
+
+*a
+*b
+
+-----
+
+(inline
+  (inline_element)
+  (inline_element
+    (word))
+  (inline_element)
+  (inline_element
+    (word)))
