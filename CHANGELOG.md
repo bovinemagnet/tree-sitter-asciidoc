@@ -1,5 +1,49 @@
 # Changelog
 
+## [0.10.0](https://github.com/bovinemagnet/tree-sitter-asciidoc/compare/v0.9.0...v0.10.0) (2026-10-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **inline:** the `ltalic` node type is now `italic`; queries that reference `(ltalic)` must be updated.
+
+### Features
+
+* **block:** nest content under section headings ([36e546c](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/36e546c2b6458ca8827d0ae90de3c35ca1f7c979))
+* **block:** parse block attribute lists into structured nodes ([d01171b](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/d01171b280deeb30e65022e71cb8e88dc65a5140))
+* **inline:** parse attribute references in macro targets and attrs ([957a33d](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/957a33d9b17a7a95b81f81734cb92e90ea5e7324))
+* **inline:** parse counter attribute references ([dd0d426](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/dd0d4262fd0a7b2e99fd795a7f6b47190ab15eb2))
+* **inline:** parse macro attribute lists into structured nodes ([fa37f3b](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/fa37f3b1f9b8d090a8216368dc65ecd73b8591b2))
+* **inline:** parse typographic (curved) quotes ([68b1a5b](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/68b1a5b9bdb01dcd049c1252ea0c33a2063df72e))
+* **inline:** support triple-plus passthrough ([8d6d71e](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/8d6d71e0f610626ea7d0314de762041858aee84b))
+* **scanner:** include the admonition label in its token ([3060415](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/306041546fb508ca188747d8c498b948072d2e1c))
+* **scanner:** parse Markdown-style ATX headings ([963f5f0](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/963f5f0478d6b3a7d793483a26d8e5082fc18d74))
+* **scanner:** parse Markdown-style fenced code blocks ([0d9b1f1](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/0d9b1f11ddf7b4339f62a75ec15afb713a67ad21))
+* **table:** expose a table's header row as table_header_row ([a4fc9d7](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/a4fc9d7217502664b7a08fb028377a3c5dc4350e))
+
+
+### Bug Fixes
+
+* accept globs and empty values in document attributes ([882e431](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/882e43173427b831cd0d98ab3525501bed6ea214))
+* accept globs and empty values in document attributes ([bce48f0](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/bce48f03833a9aecf836a8c0a3ca25324b014c77))
+* avoid duplicate paragraph injections ([e3223ee](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/e3223ee74ef9c1b8bd2bdc1876c62765ae5ff90b))
+* avoid overlapping paragraph injections ([73132b9](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/73132b90bcce1ff45b396906ab86672d59c1f022))
+* **block:** allow comments inside sections ([229b3d0](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/229b3d0435cd7760c6a8de2131d1763b160e054a))
+* **block:** carry block attributes and titles across comments ([17ff89a](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/17ff89aefab7c202fb1b2203eab7e94c812f48e0))
+* carry block attributes and titles across comments ([f01ce8b](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/f01ce8b1d3603a4221c41668466b21da44271a6a))
+* declare injection queries ([b6a7121](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/b6a7121c668cb62bf3e4106d2344fec6e517b340))
+* distinguish stem language injections ([f7c951e](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/f7c951e0e4a22b492d2d4dd3956cba018fb4736b))
+* **inline:** keep word-internal delimiters inside a constrained span ([3fa6cf9](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/3fa6cf903c749ac47f0fd515f1f43d44b379d234))
+* **inline:** keep word-internal delimiters inside a constrained span ([9faab6a](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/9faab6a1580f9eae2a99d0cba4380262d1fe41b4))
+* **inline:** match arrow replacements in source form ([2b3e261](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/2b3e261dac14c2ee1e646d4677cd861eaf05df68))
+* **inline:** rename the `ltalic` node to `italic` ([06386c8](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/06386c8d570a307389d6a4f33561fe7af9001193))
+* keep comments from closing their section ([de7ee31](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/de7ee311b7c885a97bc9c8067f6c8411015835d0))
+* reset external scanner state ([45f7170](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/45f7170ffa633bcdc9f1eee48368371be75bdba4))
+* stop autolinks at closing brackets ([ade9989](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/ade998931aeac0a10ca592b421cdb1f2f088f6c9))
+* **table:** let a cell's text resume after a block ([3c28d51](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/3c28d515e74e934caed988e19d9a5f29293213a1)), closes [#2](https://github.com/bovinemagnet/tree-sitter-asciidoc/issues/2)
+* **table:** let a text cell carry block content ([4706425](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/4706425e76c3393994ddddbacf17f091c6456b3e)), closes [#1](https://github.com/bovinemagnet/tree-sitter-asciidoc/issues/1)
+* terminate URLs before closing brackets ([c0b6adb](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/c0b6adb497cb707b3a13c3d846aac1f54a1a1b5e))
+
 ## [0.9.0](https://github.com/cathaysia/tree-sitter-asciidoc/compare/v0.8.0...v0.9.0) (2026-06-11)
 
 
