@@ -34,3 +34,25 @@ jobs:
       - name: run test
         run: |
           pnpm test
+
+  # The parsers are generated at ABI 14 so that Emacs builds linked against
+  # tree-sitter 0.22 load them (docs/DESIGN_DECISIONS.md). This builds the
+  # committed parsers against that runtime and runs both corpora through it,
+  # so a parser or scanner change that only works on newer runtimes fails here.
+  old-runtime:
+    runs-on: ubuntu-latest
+    env:
+      TREE_SITTER_REF: v0.22.6
+      TREE_SITTER_SHA: b40f342067a89cd6331bf4c27407588320f3c263
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: fetch tree-sitter runtime
+        run: |
+          git -c advice.detachedHead=false clone --quiet --depth 1 \
+            --branch "$TREE_SITTER_REF" https://github.com/tree-sitter/tree-sitter \
+            "$RUNNER_TEMP/tree-sitter"
+          test "$(git -C "$RUNNER_TEMP/tree-sitter" rev-parse HEAD)" = "$TREE_SITTER_SHA"
+
+      - name: run corpora on tree-sitter 0.22
+        run: sh test/compat/run.sh "$RUNNER_TEMP/tree-sitter"
