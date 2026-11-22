@@ -63,6 +63,15 @@ An illegal level skip (for example `==` straight to `====`) still nests rather
 than erroring: a section body accepts any deeper section, and the innermost open
 section greedily claims a deeper heading.
 
+For the same reason a top-level section may start at any level, not only `==`.
+Asciidoctor warns about the out-of-sequence level but still renders it, and
+include fragments such as Antora partials are usually written at the level they
+will be included at. Requiring `==` turned such a file into one `ERROR` node.
+The cost is parser size: the parser has to track which levels are open, and
+letting any level open at the top roughly doubles those combinations (about
+9,300 states became about 14,800). Avoiding that would mean moving section
+boundaries into the external scanner.
+
 ## `section_block` is the content wrapper, and it stayed
 
 `section_block` wraps a single content block (an optional attribute list / block
