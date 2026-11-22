@@ -5,9 +5,7 @@
 
 ### Bug Fixes
 
-* **block:** let a top-level section start at any level ([97a201b](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/97a201b9d0322835d9cb584e7abb9cd1b11ce924))
 * **block:** let a top-level section start at any level ([89ad71e](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/89ad71ea6ae1884cdabf0d071ad8a6467acdb05b)), closes [#16](https://github.com/bovinemagnet/tree-sitter-asciidoc/issues/16)
-* generate the parsers with ABI 14 so older runtimes load them ([f65d032](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/f65d03266920ef2b19bbe6b37e4393c45deac6b4))
 * generate the parsers with ABI 14 so older runtimes load them ([3b8417b](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/3b8417b914a7d9714e414f56b3b41b0365808ce9)), closes [#15](https://github.com/bovinemagnet/tree-sitter-asciidoc/issues/15)
 
 ## [0.11.0](https://github.com/bovinemagnet/tree-sitter-asciidoc/compare/v0.10.0...v0.11.0) (2026-10-29)
