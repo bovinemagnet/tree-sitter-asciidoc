@@ -36,7 +36,15 @@ module.exports = grammar({
           choice(
             $.document_title,
             $.document_attr,
+            // A top-level section may start at any level, not just `==`.
+            // Asciidoctor only warns about the out-of-sequence level, and
+            // include fragments such as Antora partials are commonly written
+            // at the level they will be included at.
             alias($._section1, $.section),
+            alias($._section2, $.section),
+            alias($._section3, $.section),
+            alias($._section4, $.section),
+            alias($._section5, $.section),
             alias($._doc_block, $.section_block),
             $.line_comment,
             $.block_comment,

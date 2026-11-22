@@ -112,7 +112,8 @@ A few rules are worth knowing because they shape large parts of the tree:
 
 - **Sections** nest by heading level. A level-1 section (`==`) contains its
   content plus any deeper section, and each level closes when a same-or-higher
-  heading appears. The heading nodes stay `title1`..`title5`, wrapped in a
+  heading appears. A top-level section may start at any level, so a fragment
+  that begins at `===` still parses. The heading nodes stay `title1`..`title5`, wrapped in a
   `section`. Container blocks (open/sidebar/quote/delimited/table cells) keep a
   flat `section_block` instead.
 - **`section_block`** is the generic content-block wrapper (an optional
