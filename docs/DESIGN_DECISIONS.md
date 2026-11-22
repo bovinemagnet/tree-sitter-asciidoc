@@ -130,3 +130,50 @@ resolves to an ordinary attribute reference by longest match.
 fails if they drift. Always regenerate with the tree-sitter CLI version pinned
 in `package.json`. A different CLI version rewrites `src/tree_sitter/array.h` and
 reshuffles tables, producing a noisy, version-specific diff.
+
+## Parsers are generated with ABI 14
+
+Both parsers are generated with `tree-sitter generate --abi 14`, one step below
+the CLI's default of ABI 15. The decision was made so that the grammars load in
+Emacs. Emacs builds that distributions ship are often linked against an older
+tree-sitter runtime: Emacs 30.1 on Debian 13 uses tree-sitter 0.22. The 0.22 to
+0.24 runtimes load ABI 13 and 14 only, and they reject an ABI 15 parser outright
+with a `version-mismatch` error, so the editor gets no parser at all (#15,
+bbatsov/asciidoc-mode#20). Newer runtimes, from 0.25 to at least 0.27, load
+ABIs 13 to 15, so Zed and other current editors are unaffected.
+
+What ABI 14 gives up, compared with 15:
+
+- **Reserved words** (`reserved:` in `grammar.js`). Neither grammar uses them,
+  so nothing changes today, but they cannot be added while the parsers stay on
+  ABI 14.
+- **Supertypes** (`supertypes:`). Neither grammar declares any.
+  `ts_language_supertypes()` reports none.
+- **The language name compiled into the parser.** `ts_language_name()` returns
+  `NULL` instead of `"asciidoc"` or `"asciidoc_inline"`. Editors register a
+  grammar under a name they choose, so loading is not affected. Code that asks
+  the loaded language for its name gets nothing back.
+- **Version metadata.** `ts_language_metadata()` returns `NULL` instead of the
+  version from `tree-sitter.json`. A consumer that wants the grammar's version
+  has to read it from `tree-sitter.json` or the release tag instead. As a side
+  effect, `parser.c` no longer changes when the version is bumped, so the
+  release job's regenerate step normally has nothing to commit.
+
+Each grammar's `generate` script in `package.json` and its `Makefile` pass the
+flag. `test/abi.sh`, run by `pnpm test`, fails if `src/parser.c` comes out at
+any other ABI, which catches a regeneration that drops it. A hand-run
+`tree-sitter generate` must pass `--abi 14` as well.
+
+This may need to be reverted later. Move back to ABI 15 when one of these
+happens:
+
+- a grammar change needs reserved words or supertypes
+- a consumer needs the language name or version metadata from the parser
+- a future tree-sitter runtime drops support for ABI 14 (0.27 still loads
+  ABIs 13 to 15)
+- the Emacs builds that matter have moved to tree-sitter 0.25 or newer
+
+To revert, remove `--abi 14` from both grammars' `generate` scripts and
+Makefiles, set `expected=15` in both `test/abi.sh` files, and regenerate. That
+cuts off the 0.22 to 0.24 runtimes again, so record the change in the release
+notes.

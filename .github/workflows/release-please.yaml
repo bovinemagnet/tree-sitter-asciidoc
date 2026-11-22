@@ -20,9 +20,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
 
-      # tree-sitter generate writes the version from tree-sitter.json into
-      # parser.c, so the release PR's version bump must carry regenerated
-      # parsers, or CI's regenerate check fails once it merges.
+      # At ABI 15, tree-sitter generate writes the version from
+      # tree-sitter.json into parser.c, so the release PR's version bump must
+      # carry regenerated parsers, or CI's regenerate check fails once it
+      # merges. The parsers are generated at ABI 14 (see
+      # docs/DESIGN_DECISIONS.md), which carries no version, so this normally
+      # finds nothing to commit. It stays in case the parsers return to ABI 15.
       - uses: actions/checkout@v7
         if: ${{ steps.release.outputs.prs_created == 'true' }}
         with:
