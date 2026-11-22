@@ -127,8 +127,11 @@ A few rules are worth knowing because they shape large parts of the tree:
 
 ## Build and test flow
 
-`grammar.js` is the source of truth. `tree-sitter generate` compiles it to
-`src/parser.c` (plus `grammar.json`, `node-types.json`), which are committed.
+`grammar.js` is the source of truth. `tree-sitter generate --abi 14` (what
+`pnpm generate` runs) compiles it to `src/parser.c` (plus `grammar.json`,
+`node-types.json`), which are committed. The ABI is pinned so that older
+runtimes load the parser; see
+[DESIGN_DECISIONS.md](DESIGN_DECISIONS.md#parsers-are-generated-with-abi-14).
 The external scanner `src/scanner.c` is hand-written and compiled alongside.
 Corpus tests in `test/corpus/*.txt` assert the parse tree for sample input;
 `tree-sitter test` runs them and also loads the queries, so a broken query

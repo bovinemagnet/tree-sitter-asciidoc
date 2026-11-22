@@ -20,3 +20,7 @@ Both pin the grammars to a commit on `master`. As well as everything upstream re
 The crates.io packages linked above are upstream's releases and include none of these changes. To use this fork, depend on this repository at a commit on `master`.
 
 Please report issues and send pull requests to this repository rather than upstream.
+
+## Runtime compatibility
+
+The parsers are generated with tree-sitter ABI 14, so they load in any tree-sitter runtime that supports ABI 14, not only 0.25 and newer. CI checks this against the 0.22 runtime. That includes Emacs builds that distributions ship against older runtimes, such as Emacs 30.1 on Debian 13. With ABI 14, `ts_language_name()` and `ts_language_metadata()` return nothing for these grammars, and this may move back to ABI 15 later. See [docs/DESIGN_DECISIONS.md](docs/DESIGN_DECISIONS.md#parsers-are-generated-with-abi-14) for the reasons and the trade-offs.
