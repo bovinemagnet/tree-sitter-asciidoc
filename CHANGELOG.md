@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/bovinemagnet/tree-sitter-asciidoc/compare/v0.11.1...v0.12.0) (2026-11-23)
+
+
+### Features
+
+* **table:** mark header rows set by a header option ([47b53ba](https://github.com/bovinemagnet/tree-sitter-asciidoc/commit/47b53ba89ce7b0bfcf7a698246ee1e616722e760))
+
 ## [0.11.1](https://github.com/bovinemagnet/tree-sitter-asciidoc/compare/v0.11.0...v0.11.1) (2026-11-22)
 
 
