@@ -1,0 +1,32 @@
+======================================
+`%header` table with CRLF line endings
+======================================
+
+[%header]
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))

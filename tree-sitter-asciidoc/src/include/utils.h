@@ -56,7 +56,8 @@ typedef enum TokenType {
     TOKEN_TERM,
     TOKEN_DESCRIPTION_MARKER,
     TOKEN_TABLE_HEADER_START,
-    TOKEN_PARAGRAPH_SOFT_BREAK
+    TOKEN_PARAGRAPH_SOFT_BREAK,
+    TOKEN_TABLE_HEADER_LINE_END
 } TokenType;
 
 static inline bool parse_table_attr(TSLexer *lexer);
@@ -77,5 +78,6 @@ static inline bool is_ascii_alpha_lower(i32 ch);
 static inline bool is_geek_lower(i32 ch);
 static inline bool is_newline(i32 ch);
 static inline bool skip_line_ending(TSLexer *lexer);
-static inline bool scan_opens_with_header_row(TSLexer *lexer);
+static inline HeaderRow scan_header_row(TSLexer *lexer, u8 header_option, usize header_cols);
+static inline void scan_attr_list_for_table(Scanner *s, TSLexer *lexer);
 static inline bool is_eof(TSLexer *lexer);

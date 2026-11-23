@@ -65,6 +65,23 @@ heading is a flat `section_block`, not a nested `section`. Headings in those
 positions are unusual (typically discrete headings), so this is a deliberate
 scope choice rather than an oversight.
 
+## Some header rows set by an option are not marked
+
+A table's first row becomes a `table_header_row` when a blank line follows it,
+or when its attribute list sets `header` (`[%header]`, `options="header"`,
+`opts=header`). `noheader` stops either. With the option and no blank line, the
+header row has to end with its line, so it is only marked when that line is
+sure to be the whole row. In these cases it is left as ordinary cells, as it
+was before the option was recognised, rather than marked wrongly:
+
+- The header row is written over several lines, one cell per line, with `cols`
+  giving the column count. Whenever `cols` is set, the first line has to hold
+  exactly that many cells, and a cell spanning columns (`2+|`) counts as one.
+- The first line ends in a bare `|`, which Asciidoctor reads as an empty last
+  cell.
+- The option is on an attribute line longer than 256 characters, or a block
+  comment (`////`) sits between the attribute line and the table.
+
 ## Inline macro gating is not enforced
 
 `kbd:`, `btn:`, and `menu:` are always parsed. In AsciiDoc they require the

@@ -14,7 +14,7 @@ This is a fork of [cathaysia/tree-sitter-asciidoc](https://github.com/cathaysia/
 
 Both pin the grammars to a commit on `master`. As well as everything upstream released, `master` carries changes upstream never took:
 
-- a `table_header_row` node, so a table's header row can be styled apart from its body
+- a `table_header_row` node, so a table's header row can be styled apart from its body, whether a blank line after the first row or a `header` option (`[%header]`, `options="header"`) makes it one
 - table cells written as `| text` that can carry block content, such as an admonition or a listing, with the cell's text resuming after the block
 
 The crates.io packages linked above are upstream's releases and include none of these changes. To use this fork, depend on this repository at a commit on `master`.

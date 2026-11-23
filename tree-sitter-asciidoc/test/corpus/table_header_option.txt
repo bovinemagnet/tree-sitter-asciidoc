@@ -1,0 +1,725 @@
+=================================================
+`%header` gives a header row without a blank line
+=================================================
+
+[%header]
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+============================================
+quoted `options="header"` gives a header row
+============================================
+
+[options="header"]
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (named_attr
+          (attribute_name)
+          (attribute_value
+            (value)))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+==================================================
+`header` in an options list after other attributes
+==================================================
+
+[cols="1,1",options="header,footer"]
+|===
+| A | B
+| c | d
+| e | f
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (named_attr
+          (attribute_name)
+          (attribute_value
+            (value)))
+        (named_attr
+          (attribute_name)
+          (attribute_value
+            (value)))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+=====================================
+bare `opts=header` gives a header row
+=====================================
+
+[opts=header]
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (named_attr
+          (attribute_name)
+          (attribute_value
+            (value)))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+======================================
+`%header` chained after another option
+======================================
+
+[%autowidth%header]
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option)
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+==============================================
+`%noheader` suppresses the implicit header row
+==============================================
+
+[%noheader]
+|===
+| A | B
+
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+==================================================
+header option across a blank line before the table
+==================================================
+
+[%header]
+
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+================================================
+header option across a block title and a comment
+================================================
+
+[%header]
+.Caption
+// note
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (block_title
+        (block_title_marker)
+        (line))
+      (line_comment
+        (line_comment_marker)
+        (body))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+==========================================
+header option on the second attribute line
+==========================================
+
+[cols="1,1"]
+[%header]
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (named_attr
+          (attribute_name)
+          (attribute_value
+            (value)))
+        (element_attr_marker))
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+====================================================
+header row spread over lines by `cols` is not marked
+====================================================
+
+[%header,cols="2"]
+|===
+| A
+| B
+| c
+| d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (named_attr
+          (attribute_name)
+          (attribute_value
+            (value)))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+=========================================================
+header option on a paragraph does not reach a later table
+=========================================================
+
+[%header]
+A paragraph.
+
+|===
+| a | b
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (table_block
+        (table_block_marker)
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+====================================================
+header option with a blank line before the first row
+====================================================
+
+[%header]
+|===
+
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+==================================================
+header option and a blank line give one header row
+==================================================
+
+[%header]
+|===
+| A | B
+
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+==================================
+header option after a block anchor
+==================================
+
+[[tbl]]
+[%header]
+|===
+| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+====================================================
+header option on a table holding only the header row
+====================================================
+
+[%header]
+|===
+| A | B
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_block_marker)))))
+
+========================================================
+header row keeps a cell specifier with the header option
+========================================================
+
+[%header]
+|===
+h| A | B
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_attr)
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+===============================
+header option on an empty table
+===============================
+
+[%header]
+|===
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_block_marker)))))
+
+===============================================================
+header option with a first line ending in a bare cell separator
+===============================================================
+
+[%header]
+|===
+| A |
+| c | d
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_cell
+          (table_cell_content))
+        (table_cell)
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+==============================================
+header option does not carry to the next table
+==============================================
+
+[%header]
+|===
+| A | B
+| c | d
+|===
+
+|===
+| e | f
+| g | h
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (element_attr
+        (element_attr_marker)
+        (positional_attr
+          (option))
+        (element_attr_marker))
+      (table_block
+        (table_block_marker)
+        (table_header_row
+          (table_cell
+            (table_cell_content))
+          (table_cell
+            (table_cell_content)))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker))))
+  (block_element
+    (section_block
+      (table_block
+        (table_block_marker)
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
+
+==========================================================
+header option before a fence that is not followed by a row
+==========================================================
+
+Before.
+
+|===
+a|
+[%header]
+|===
+
+|===
+| e | f
+| g | h
+|===
+
+---
+
+(document
+  (block_element
+    (section_block
+      (paragraph
+        (line))))
+  (block_element
+    (section_block
+      (table_block
+        (table_block_marker)
+        (table_cell
+          (table_cell_attr)
+          (section_block
+            (element_attr
+              (element_attr_marker)
+              (positional_attr
+                (option))
+              (element_attr_marker))
+            (table_block
+              (table_block_marker)
+              (table_block_marker))))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_cell
+          (table_cell_content))
+        (table_block_marker)))))
