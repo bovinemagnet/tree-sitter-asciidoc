@@ -1266,8 +1266,17 @@
           }
         },
         {
-          "type": "SYMBOL",
-          "name": "_table_header_row_end"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_table_header_row_end"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_table_header_line_end"
+            }
+          ]
         }
       ]
     },
@@ -3693,6 +3702,10 @@
     {
       "type": "SYMBOL",
       "name": "_paragraph_soft_break"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_table_header_line_end"
     }
   ],
   "inline": [],

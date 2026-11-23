@@ -469,5 +469,6 @@ module.exports = grammar({
     $.description_marker,
     $._table_header_start,
     $._paragraph_soft_break,
+    $._table_header_line_end,
   ],
 });

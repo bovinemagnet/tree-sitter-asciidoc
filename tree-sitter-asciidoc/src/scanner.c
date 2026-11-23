@@ -39,6 +39,9 @@ void tree_sitter_asciidoc_external_scanner_deserialize(void *payload, const char
     Scanner *s = (Scanner *)payload;
     s->len = 0;
     s->header_pending = false;
+    s->header_line_end_pending = false;
+    s->table_header_option = 0;
+    s->table_header_cols = 0;
 
     if(!buffer || length == 0) {
         return;
@@ -65,6 +68,18 @@ bool tree_sitter_asciidoc_external_scanner_scan(void *payload, TSLexer *lexer, c
         s->header_pending = false;
         lexer->mark_end(lexer);
         lexer->result_symbol = TOKEN_TABLE_HEADER_START;
+        return true;
+    }
+
+    // A header row made by a header option ends with its line, where a body cell's
+    // content would run on to the next `|`. The row was checked to fit on that line when
+    // its `|===` was scanned.
+    if(valid_symbols[TOKEN_TABLE_HEADER_LINE_END] && s->header_line_end_pending &&
+       is_newline(lexer->lookahead)) {
+        s->header_line_end_pending = false;
+        skip_line_ending(lexer);
+        lexer->mark_end(lexer);
+        lexer->result_symbol = TOKEN_TABLE_HEADER_LINE_END;
         return true;
     }
 
@@ -445,6 +460,7 @@ bool tree_sitter_asciidoc_external_scanner_scan(void *payload, TSLexer *lexer, c
                         }
                         lexer->mark_end(lexer);
                         lexer->result_symbol = TOKEN_ELEMENT_ATTR_MARKER;
+                        scan_attr_list_for_table(s, lexer);
                         return true;
                     }
                     break;
@@ -522,13 +538,23 @@ bool tree_sitter_asciidoc_external_scanner_scan(void *payload, TSLexer *lexer, c
                                     lexer->mark_end(lexer);
                                     lexer->result_symbol = TOKEN_TABLE_BLOCK_MARKER;
                                     scanner_pop(s);
+                                    // An option recorded in front of a fence that turned
+                                    // out to close a table must not reach the next one.
+                                    s->table_header_option = 0;
+                                    s->table_header_cols = 0;
+                                    s->header_line_end_pending = false;
                                     return true;
                                 }
                             } else {
                                 lexer->mark_end(lexer);
                                 lexer->result_symbol = TOKEN_TABLE_BLOCK_MARKER;
                                 scanner_push(s, BLOCK_KIND_TABLE, counter);
-                                s->header_pending = scan_opens_with_header_row(lexer);
+                                HeaderRow row =
+                                    scan_header_row(lexer, s->table_header_option, s->table_header_cols);
+                                s->table_header_option = 0;
+                                s->table_header_cols = 0;
+                                s->header_pending = row != HEADER_ROW_NONE;
+                                s->header_line_end_pending = row == HEADER_ROW_FIRST_LINE;
                                 return true;
                             }
                         }
@@ -834,43 +860,348 @@ static inline bool skip_line_ending(TSLexer *lexer) {
     return true;
 }
 
-/// AsciiDoc promotes a table's first line to its header row when a blank line follows it.
+/// Decides how the row after an opening `|===` is read. AsciiDoc promotes a table's first
+/// line to its header row when a blank line follows it; a `header` option makes the first
+/// row the header row without one, and a `noheader` option stops either.
+///
+/// A row made a header by an option has to end with its line, so it is only accepted when
+/// the line is sure to be the whole row: it holds at least one cell, does not end in a
+/// bare `|` (whose cell would take the line ending), and, when `cols` gives the column
+/// count, holds exactly that many cells. A header row written over several lines is left
+/// unmarked rather than half marked.
 ///
 /// Called with the lexer sitting on the line ending of an opening `|===`, whose token has
 /// already been marked, so everything read here is lookahead and widens nothing.
-static inline bool scan_opens_with_header_row(TSLexer *lexer) {
+static inline HeaderRow scan_header_row(TSLexer *lexer, u8 header_option, usize header_cols) {
+    if((header_option & TABLE_HEADER_OPTION_NOHEADER) && !(header_option & TABLE_HEADER_OPTION_HEADER)) {
+        return HEADER_ROW_NONE;
+    }
+    bool explicit_header = header_option & TABLE_HEADER_OPTION_HEADER;
     if(!skip_line_ending(lexer)) {
-        return false;
+        return HEADER_ROW_NONE;
     }
 
-    // The line has to be cells, not the delimiter closing an empty table, which a blank
-    // line may equally well follow.
-    bool closes_the_table = lexer->lookahead == '|';
-    usize delimiter_run = 0;
+    for(bool first_line = true;; first_line = false) {
+        // The line has to be cells, not the delimiter closing an empty table, which a
+        // blank line may equally well follow.
+        bool closes_the_table = lexer->lookahead == '|';
+        usize delimiter_run = 0;
 
-    bool first_line_has_content = false;
-    while(!is_eof(lexer) && !is_newline(lexer->lookahead)) {
-        first_line_has_content = true;
-        if(closes_the_table && !is_white_space(lexer->lookahead)) {
-            if(lexer->lookahead == '=' && delimiter_run < USIZE_MAX) {
-                ++delimiter_run;
-            } else if(delimiter_run > 0) {
-                closes_the_table = false;
+        bool has_content = false;
+        bool blank = true;
+        usize cells = 0;
+        bool escaped = false;
+        bool ends_with_separator = false;
+        while(!is_eof(lexer) && !is_newline(lexer->lookahead)) {
+            i32 ch = lexer->lookahead;
+            has_content = true;
+            if(closes_the_table && !is_white_space(ch)) {
+                if(ch == '=' && delimiter_run < USIZE_MAX) {
+                    ++delimiter_run;
+                } else if(delimiter_run > 0) {
+                    closes_the_table = false;
+                }
+            }
+            if(!is_white_space(ch)) {
+                blank = false;
+                ends_with_separator = ch == '|' && !escaped;
+            }
+            if(ch == '|' && !escaped && cells < USIZE_MAX) {
+                ++cells;
+            }
+            escaped = ch == '\\' && !escaped;
+            lexer->advance(lexer, false);
+        }
+        if(closes_the_table && delimiter_run >= 3) {
+            return HEADER_ROW_NONE;
+        }
+
+        if(first_line && has_content) {
+            if(skip_line_ending(lexer)) {
+                while(is_white_space(lexer->lookahead)) {
+                    lexer->advance(lexer, false);
+                }
+                if(is_newline(lexer->lookahead)) {
+                    return HEADER_ROW_IMPLICIT;
+                }
             }
         }
-        lexer->advance(lexer, false);
+        if(!explicit_header) {
+            return HEADER_ROW_NONE;
+        }
+        if(!has_content) {
+            // A blank line between the fence and the first row; the row is on a later line.
+            if(!skip_line_ending(lexer)) {
+                return HEADER_ROW_NONE;
+            }
+            continue;
+        }
+        if(blank || cells == 0 || ends_with_separator) {
+            return HEADER_ROW_NONE;
+        }
+        if(header_cols != 0 && cells != header_cols) {
+            return HEADER_ROW_NONE;
+        }
+        return HEADER_ROW_FIRST_LINE;
     }
-    if(!first_line_has_content || (closes_the_table && delimiter_run >= 3)) {
-        return false;
-    }
-    if(!skip_line_ending(lexer)) {
-        return false;
-    }
+}
 
-    while(is_white_space(lexer->lookahead)) {
+#define ATTR_LIST_MAX 256
+
+static inline bool attr_word_is(char const *word, usize len, char const *expected) {
+    usize i = 0;
+    for(; i < len && expected[i] != '\0'; ++i) {
+        if(word[i] != expected[i]) {
+            return false;
+        }
+    }
+    return i == len && expected[i] == '\0';
+}
+
+static inline u8 attr_header_option(char const *word, usize len) {
+    if(attr_word_is(word, len, "header")) {
+        return TABLE_HEADER_OPTION_HEADER;
+    }
+    if(attr_word_is(word, len, "noheader")) {
+        return TABLE_HEADER_OPTION_NOHEADER;
+    }
+    return 0;
+}
+
+static inline void attr_trim(char const **text, usize *len) {
+    while(*len > 0 && is_white_space((*text)[0])) {
+        ++*text;
+        --*len;
+    }
+    while(*len > 0 && is_white_space((*text)[*len - 1])) {
+        --*len;
+    }
+}
+
+/// The column count a `cols` value gives: a lone number is that many columns, otherwise
+/// each comma- or semicolon-separated entry is one column, or `n` for `n*`. 0 when unsure.
+static inline usize attr_column_count(char const *value, usize len) {
+    usize entries = 0;
+    usize columns = 0;
+    usize i = 0;
+    bool lone_number = true;
+    usize lone_value = 0;
+    while(i <= len) {
+        usize start = i;
+        while(i < len && value[i] != ',' && value[i] != ';') {
+            ++i;
+        }
+        char const *entry = value + start;
+        usize entry_len = i - start;
+        attr_trim(&entry, &entry_len);
+        if(entry_len == 0) {
+            return 0;
+        }
+        ++entries;
+        usize digits = 0;
+        usize number = 0;
+        while(digits < entry_len && is_ascii_digit(entry[digits]) && number < 1000) {
+            number = number * 10 + (usize)(entry[digits] - '0');
+            ++digits;
+        }
+        if(digits < entry_len && entry[digits] == '*') {
+            if(digits == 0 || number == 0) {
+                return 0;
+            }
+            columns += number;
+            lone_number = false;
+        } else {
+            columns += 1;
+            if(digits != entry_len) {
+                lone_number = false;
+            }
+            lone_value = number;
+        }
+        ++i;
+    }
+    if(entries == 1 && lone_number) {
+        return lone_value;
+    }
+    return columns;
+}
+
+/// Reads the header options and `cols` out of the text of one block attribute list.
+static inline void attr_list_options(char const *text, usize len, u8 *option, usize *cols) {
+    usize i = 0;
+    for(bool first_entry = true; i <= len; first_entry = false) {
+        usize start = i;
+        char quote = 0;
+        while(i < len && (quote || text[i] != ',')) {
+            if(quote && text[i] == quote) {
+                quote = 0;
+            } else if(!quote && (text[i] == '"' || text[i] == '\'')) {
+                quote = text[i];
+            }
+            ++i;
+        }
+        char const *entry = text + start;
+        usize entry_len = i - start;
+        ++i;
+        attr_trim(&entry, &entry_len);
+
+        usize eq = 0;
+        while(eq < entry_len && entry[eq] != '=' && entry[eq] != '"' && entry[eq] != '\'') {
+            ++eq;
+        }
+        if(eq < entry_len && entry[eq] == '=') {
+            char const *name = entry;
+            usize name_len = eq;
+            attr_trim(&name, &name_len);
+            char const *value = entry + eq + 1;
+            usize value_len = entry_len - eq - 1;
+            attr_trim(&value, &value_len);
+            if(value_len >= 2 && (value[0] == '"' || value[0] == '\'') && value[value_len - 1] == value[0]) {
+                ++value;
+                value_len -= 2;
+            }
+            if(attr_word_is(name, name_len, "options") || attr_word_is(name, name_len, "opts")) {
+                usize j = 0;
+                while(j <= value_len) {
+                    usize word_start = j;
+                    while(j < value_len && value[j] != ',') {
+                        ++j;
+                    }
+                    char const *word = value + word_start;
+                    usize word_len = j - word_start;
+                    attr_trim(&word, &word_len);
+                    *option |= attr_header_option(word, word_len);
+                    ++j;
+                }
+            } else if(attr_word_is(name, name_len, "cols")) {
+                *cols = attr_column_count(value, value_len);
+            }
+        } else if(first_entry) {
+            // The style slot may carry `%option` shorthand, as in `[%autowidth%header]`.
+            for(usize j = 0; j < entry_len; ++j) {
+                if(entry[j] != '%') {
+                    continue;
+                }
+                usize word_start = j + 1;
+                usize k = word_start;
+                while(k < entry_len && entry[k] != '%' && entry[k] != '#' && entry[k] != '.') {
+                    ++k;
+                }
+                *option |= attr_header_option(entry + word_start, k - word_start);
+                j = k - 1;
+            }
+        }
+    }
+}
+
+/// Skips the rest of the current line and its line ending. False at the end of input.
+static inline bool skip_rest_of_line(TSLexer *lexer) {
+    while(!is_eof(lexer) && !is_newline(lexer->lookahead)) {
         lexer->advance(lexer, false);
     }
-    return is_newline(lexer->lookahead);
+    return skip_line_ending(lexer);
+}
+
+/// How many lines `leads_to_table_fence` may look past. Every attribute list in a run
+/// looks ahead over the rest of the run, so without a cap a long run of attribute lines
+/// would take time quadratic in its length.
+#define TABLE_FENCE_LOOKAHEAD_LINES 64
+
+/// Whether the lines ahead lead straight to a `|===` fence, past only what may sit between
+/// a block's attribute lists and the block: blank lines, more attribute lists or anchors,
+/// block titles and line comments. Gives up after `TABLE_FENCE_LOOKAHEAD_LINES` lines.
+static inline bool leads_to_table_fence(TSLexer *lexer) {
+    for(usize lines = 0; lines < TABLE_FENCE_LOOKAHEAD_LINES; ++lines) {
+        if(is_eof(lexer)) {
+            return false;
+        }
+        while(is_white_space(lexer->lookahead)) {
+            lexer->advance(lexer, false);
+        }
+        i32 ch = lexer->lookahead;
+        if(is_newline(ch)) {
+            skip_line_ending(lexer);
+            continue;
+        }
+        if(lexer->get_column(lexer) != 0) {
+            return false;
+        }
+        lexer->advance(lexer, false);
+        switch(ch) {
+            case '[':
+                break;
+            case '.':
+                if(is_white_space(lexer->lookahead) || is_newline(lexer->lookahead) ||
+                   lexer->lookahead == '.' || is_eof(lexer)) {
+                    return false;
+                }
+                break;
+            case '/':
+                if(lexer->lookahead != '/') {
+                    return false;
+                }
+                lexer->advance(lexer, false);
+                // `////` opens a block comment, which is not skipped.
+                if(lexer->lookahead == '/') {
+                    return false;
+                }
+                break;
+            case '|': {
+                usize run = 0;
+                while(lexer->lookahead == '=' && run < USIZE_MAX) {
+                    ++run;
+                    lexer->advance(lexer, false);
+                }
+                while(is_white_space(lexer->lookahead)) {
+                    lexer->advance(lexer, false);
+                }
+                return run >= 3 && (is_newline(lexer->lookahead) || is_eof(lexer));
+            }
+            default:
+                return false;
+        }
+        if(!skip_rest_of_line(lexer)) {
+            return false;
+        }
+    }
+    return false;
+}
+
+/// Called after the `[` of a block attribute list has been marked, so everything read here
+/// is lookahead. When the list leads to a table fence, its header options and `cols` are
+/// recorded for that fence to read; options on any other block are never recorded.
+static inline void scan_attr_list_for_table(Scanner *s, TSLexer *lexer) {
+    char text[ATTR_LIST_MAX];
+    usize len = 0;
+    while(!is_eof(lexer) && !is_newline(lexer->lookahead)) {
+        if(len == ATTR_LIST_MAX) {
+            return;
+        }
+        i32 ch = lexer->lookahead;
+        text[len++] = ch >= 0 && ch < 0x80 ? (char)ch : '?';
+        lexer->advance(lexer, false);
+    }
+    while(len > 0 && is_white_space(text[len - 1])) {
+        --len;
+    }
+    // Only a list that closes at the end of its line is an attribute line.
+    if(len == 0 || text[len - 1] != ']') {
+        return;
+    }
+    --len;
+
+    u8 option = 0;
+    usize cols = 0;
+    attr_list_options(text, len, &option, &cols);
+    if(option == 0 && cols == 0) {
+        return;
+    }
+    if(!skip_line_ending(lexer) || !leads_to_table_fence(lexer)) {
+        return;
+    }
+    s->table_header_option |= option;
+    if(cols != 0) {
+        s->table_header_cols = cols;
+    }
 }
 
 static inline bool is_eof(TSLexer *lexer) {
@@ -994,6 +1325,9 @@ static inline Result scanner_serialize(Scanner const *self, QuickBuffer *qb) {
     ret &= quick_buffer_write_usize(qb, self->len);
     ret &= quick_buffer_extend_bytes(qb, self->buffer, sizeof(Node) * self->len);
     ret &= quick_buffer_write_usize(qb, self->header_pending ? 1 : 0);
+    ret &= quick_buffer_write_usize(qb, self->header_line_end_pending ? 1 : 0);
+    ret &= quick_buffer_write_usize(qb, self->table_header_option);
+    ret &= quick_buffer_write_usize(qb, self->table_header_cols);
 
     return ret;
 }
@@ -1013,6 +1347,15 @@ static inline Result scanner_deserialize(Scanner *self, QuickBuffer *qb) {
     usize header_pending = 0;
     ret &= quick_buffer_read_usize(qb, &header_pending);
     self->header_pending = header_pending != 0;
+
+    usize header_line_end_pending = 0;
+    ret &= quick_buffer_read_usize(qb, &header_line_end_pending);
+    self->header_line_end_pending = header_line_end_pending != 0;
+
+    usize table_header_option = 0;
+    ret &= quick_buffer_read_usize(qb, &table_header_option);
+    self->table_header_option = (u8)table_header_option;
+    ret &= quick_buffer_read_usize(qb, &self->table_header_cols);
 
     return ret;
 }

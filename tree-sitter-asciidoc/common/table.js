@@ -106,13 +106,20 @@ exports.rules = {
   table_cell_content: $ => repeat1(choice(/[^|]/, '\\|')),
 
   // AsciiDoc promotes a table's first line to a header row when a blank line follows it,
-  // which is also the layout `[%header]` and `options="header"` tables are written in.
-  // `_table_header_start` is a zero-width token the scanner emits only in that case; the
-  // attribute list itself sits outside `table_block` and is not visible from here.
-  // Settling the question before any cell is read keeps header and body cells out of one
-  // parse state, so the two can end their content differently.
+  // and a `header` option (`[%header]`, `options="header"`) makes the first row the header
+  // row without one. `_table_header_start` is a zero-width token the scanner emits in
+  // either case. The attribute list sits outside `table_block` and is not visible from
+  // here, so the scanner reads the option when it scans the list's `[`, and only keeps it
+  // when the list leads to a table fence. Settling the question before any cell is read
+  // keeps header and body cells out of one parse state, so the two can end their content
+  // differently: an implicit header row at its blank line, an option's one at the end of
+  // its first line (`_table_header_line_end`).
   table_header_row: $ =>
-    seq($._table_header_start, repeat1($.table_cell), $._table_header_row_end),
+    seq(
+      $._table_header_start,
+      repeat1($.table_cell),
+      choice($._table_header_row_end, $._table_header_line_end),
+    ),
   // Matched as one token so that it outruns the single character a cell's content would
   // otherwise take the first newline as.
   _table_header_row_end: _ => token(seq(/\r?\n/, /[ \t]*/, /\r?\n/)),
