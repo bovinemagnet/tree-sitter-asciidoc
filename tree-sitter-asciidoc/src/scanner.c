@@ -1101,11 +1101,16 @@ static inline bool skip_rest_of_line(TSLexer *lexer) {
     return skip_line_ending(lexer);
 }
 
+/// How many lines `leads_to_table_fence` may look past. Every attribute list in a run
+/// looks ahead over the rest of the run, so without a cap a long run of attribute lines
+/// would take time quadratic in its length.
+#define TABLE_FENCE_LOOKAHEAD_LINES 64
+
 /// Whether the lines ahead lead straight to a `|===` fence, past only what may sit between
 /// a block's attribute lists and the block: blank lines, more attribute lists or anchors,
-/// block titles and line comments.
+/// block titles and line comments. Gives up after `TABLE_FENCE_LOOKAHEAD_LINES` lines.
 static inline bool leads_to_table_fence(TSLexer *lexer) {
-    for(;;) {
+    for(usize lines = 0; lines < TABLE_FENCE_LOOKAHEAD_LINES; ++lines) {
         if(is_eof(lexer)) {
             return false;
         }
@@ -1158,6 +1163,7 @@ static inline bool leads_to_table_fence(TSLexer *lexer) {
             return false;
         }
     }
+    return false;
 }
 
 /// Called after the `[` of a block attribute list has been marked, so everything read here

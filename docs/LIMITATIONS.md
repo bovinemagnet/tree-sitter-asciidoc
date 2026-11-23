@@ -79,8 +79,9 @@ was before the option was recognised, rather than marked wrongly:
   exactly that many cells, and a cell spanning columns (`2+|`) counts as one.
 - The first line ends in a bare `|`, which Asciidoctor reads as an empty last
   cell.
-- The option is on an attribute line longer than 256 characters, or a block
-  comment (`////`) sits between the attribute line and the table.
+- The option is on an attribute line longer than 256 characters, a block
+  comment (`////`) sits between the attribute line and the table, or more than
+  64 lines of attribute lists, titles, comments and blank lines do.
 
 ## Inline macro gating is not enforced
 
